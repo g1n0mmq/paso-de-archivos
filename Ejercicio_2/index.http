@@ -1,0 +1,48 @@
+@url=http://localhost:5000
+
+###
+POST {{url}}/alumnos
+Content-Type: application/json
+
+{
+   "nombre": "Pioli Tizon Ramiro",
+   "nota1": 10,
+   "nota2": 10,
+   "nota3": 10
+}
+###
+
+POST {{url}}/alumnos
+Content-Type: application/json
+
+{
+   "nombre": "Lucas Selva",
+   "nota1": 6,
+   "nota2": 7,
+   "nota3": 7
+}
+###
+
+POST {{url}}/alumnos
+Content-Type: application/json
+
+{
+   "nombre": "Jose Nuñez",
+   "nota1": 4,
+   "nota2": 5,
+   "nota3": 5
+}
+###
+
+PUT {{url}}/alumnos/Pioli Tizon Ramiro
+Content-Type: application/json
+
+{
+   "nombre": "Pioli Tizon Ramiro",
+   "nota1": 3,
+   "nota2": 3,
+   "nota3": 6
+}
+###
+
+GET {{url}}/alumnos

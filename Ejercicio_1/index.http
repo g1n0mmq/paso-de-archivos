@@ -1,0 +1,12 @@
+@url=http://localhost:5000
+
+###Ingresar la figura
+POST {{url}}/figuras
+Content-Type: application/json
+
+{
+   "base" : 3,
+   "altura" : 3
+}
+###
+GET {{url}}/figuras

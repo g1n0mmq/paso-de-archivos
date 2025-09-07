@@ -1,0 +1,37 @@
+@url = http://localhost:5000
+
+### todas las tareas
+GET {{url}}/tareas
+
+### solo incompletas
+GET {{url}}/tareas?completada=false
+
+### solo completadas
+GET {{url}}/tareas?completada=true
+
+### crear nueva
+POST {{url}}/tareas
+Content-Type: application/json
+
+{
+   "nombre": "aprender a usar linux"
+}
+
+### repetir tarea (debería dar error)
+POST {{url}}/tareas
+Content-Type: application/json
+
+{
+   "nombre": "Aprender a programar en Python"
+}
+
+### probar sin nombre
+POST {{url}}/tareas
+Content-Type: application/json
+
+{
+   "nombre": ""
+}
+
+### ruta inexistente
+GET {{url}}/algoquenoexiste
