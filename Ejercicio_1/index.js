@@ -1,4 +1,14 @@
 import express from 'express';
+import mysql from 'mysql2/promise';
+
+//conección a la base de datos
+
+    const db = await mysql.createConnection({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME
+    });
 
 const app = express();
 const port = 5000;
@@ -19,20 +29,18 @@ app.post('/figuras', (req, res) => {
     const perimetro = (base + altura) * 2;
     const superficie = base * altura;
 
-    const nuevoCalculo = { base, altura, perimetro, superficie };
+    const nuevoCalculo = db.execute("INSERT INTO figuras (base, altura, perimetro, superficie) VALUES (?, ?, ?, ?)", [base, altura, perimetro, superficie])
     figuras.push(nuevoCalculo);
 
     res.json({ success: true, data: nuevoCalculo });
 });
 
 
-app.get('/figuras', (req, res) => {
-    const resultadosConTipo = figuras.map((f) => ({
-        ...f,
-        tipo: f.base === f.altura ? "Cuadrado" : "Rectángulo"
-    }));
+app.get('/figuras', async (req, res) => {
+  
+    const [rows] = await db.execute("SELECT * FROM figuras");
+    res.json({ success: true, data: rows });
 
-    res.json({ success: true, data: resultadosConTipo });
 });
 
 
