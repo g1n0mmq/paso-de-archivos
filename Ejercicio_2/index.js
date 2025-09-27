@@ -1,56 +1,49 @@
 import express from 'express';
+import mysql from 'mysql2/promise';
+
+//conección a la base de datos
+
+    const db = await mysql.createConnection({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME
+    });
 
 const app = express();
 const port = 5000;
 
 app.use(express.json());
 
-const alumnos = [];
+const figuras = [];
 
-app.post('/alumnos', (req, res) => {
-    const { nombre, nota1, nota2, nota3 } = req.body;
+app.post('/figuras', (req, res) => {
+    const { base, altura } = req.body;
+    console.log("Figura recibida:", req.body); 
 
-    if (!nombre || typeof nota1 !== 'number' || typeof nota2 !== 'number' || typeof nota3 !== 'number') {
-        return res.status(400).json({ success: false, message: "Faltan datos o están mal tipeados" });
+    if (typeof base !== 'number' || typeof altura !== 'number' || base <= 0 || altura <= 0) {
+        return res.status(400).json({ success: false, message: "Los valores deben ser números positivos" });
     }
 
-    if (alumnos.find(a => a.nombre === nombre)) {
-        return res.status(400).json({ success: false, message: `Alumno ${nombre} ya existe` });
-    }
 
-    const nuevoAlumno = { nombre, nota1, nota2, nota3 };
-    alumnos.push(nuevoAlumno);
-    res.status(201).json({ success: true, data: nuevoAlumno });
+    const perimetro = (base + altura) * 2;
+    const superficie = base * altura;
+
+    const nuevoCalculo = db.execute("INSERT INTO figuras (base, altura, perimetro, superficie) VALUES (?, ?, ?, ?)", [base, altura, perimetro, superficie])
+    figuras.push(nuevoCalculo);
+
+    res.json({ success: true, data: nuevoCalculo });
 });
 
-app.get('/alumnos', (req, res) => {
-    const resultados = alumnos.map(a => {
-        const promedio = (a.nota1 + a.nota2 + a.nota3) / 3;
-        let condicion = promedio >= 8 ? 'Promocionado' : promedio >= 6 ? 'Aprobado' : 'Reprobado';
-        return { ...a, promedio: parseFloat(promedio.toFixed(2)), condicion };
-    });
-    res.json({ success: true, data: resultados });
-});
 
-app.put('/alumnos/:nombre', (req, res) => {
-    const nombreParam = req.params.nombre;
-    const { nombre: nuevoNombre, nota1, nota2, nota3 } = req.body;
+app.get('/figuras', async (req, res) => {
+  
+    const [rows] = await db.execute("SELECT * FROM figuras");
+    res.json({ success: true, data: rows });
 
-    const i = alumnos.findIndex(a => a.nombre === nombreParam);
-    if (i === -1) return res.status(404).json({ success: false, message: "Alumno no encontrado" });
+}); 
 
-    if (!nuevoNombre || typeof nota1 !== 'number' || typeof nota2 !== 'number' || typeof nota3 !== 'number') {
-        return res.status(400).json({ success: false, message: "Datos inválidos" });
-    }
-
-    if (nombreParam !== nuevoNombre && alumnos.find(a => a.nombre === nuevoNombre)) {
-        return res.status(400).json({ success: false, message: `Nombre ${nuevoNombre} ya en uso` });
-    }
-
-    alumnos[i] = { nombre: nuevoNombre, nota1, nota2, nota3 };
-    res.json({ success: true, data: alumnos[i] });
-});
 
 app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
+    console.log(`Servidor funcionando en http://localhost:${port}`);
 });
